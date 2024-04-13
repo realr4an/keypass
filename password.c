@@ -24,6 +24,22 @@ void savePassword(Password *p)
     FILE *file = fopen("passwords.txt", "r");
     if (file == NULL)
     {
+        file = fopen("passwords.txt", "w");
+        if (file == NULL)
+        {
+            printf("Error creating file!\n");
+            exit(1);
+        }
+        fclose(file);
+    }
+    else
+    {
+        fclose(file);
+    }
+
+    file = fopen("passwords.txt", "r");
+    if (file == NULL)
+    {
         printf("Error opening file!\n");
         exit(1);
     }
@@ -47,7 +63,17 @@ void savePassword(Password *p)
         if (strcmp(desc, p->description) == 0)
         {
             found = 1;
-            fprintf(tempFile, "%s:%s:%s\n", p->description, p->username, p->password);
+            printf("Do you want to replace the existing login? (y/n): ");
+            char choice;
+            scanf(" %c", &choice);
+            if (choice == 'y' || choice == 'Y')
+            {
+                fprintf(tempFile, "%s:%s:%s\n", p->description, p->username, p->password);
+            }
+            else
+            {
+                fprintf(tempFile, "%s", line);
+            }
         }
         else
         {
@@ -86,15 +112,15 @@ void decryptPassword(Password *password, const char *key)
     int usernameLength = strlen(password->username);
     int passwordLength = strlen(password->password);
 
-    char encryptedUsername[50];
-    char encryptedPassword[50];
+    char decryptedUsername[MAX_LENGTH];
+    char decryptedPassword[MAX_LENGTH];
 
     for (int i = 0; i < usernameLength; i++)
     {
         int decryptedChar = (int)(password->username[i]) - (int)(key[i % keyLength]);
         if (decryptedChar < 32)
             decryptedChar += 95;
-        encryptedUsername[i] = (char)decryptedChar;
+        decryptedUsername[i] = (char)decryptedChar;
     }
 
     for (int i = 0; i < passwordLength; i++)
@@ -102,11 +128,11 @@ void decryptPassword(Password *password, const char *key)
         int decryptedChar = (int)(password->password[i]) - (int)(key[i % keyLength]);
         if (decryptedChar < 32)
             decryptedChar += 95;
-        encryptedPassword[i] = (char)decryptedChar;
+        decryptedPassword[i] = (char)decryptedChar;
     }
 
-    strncpy(password->username, encryptedUsername, usernameLength);
-    strncpy(password->password, encryptedPassword, passwordLength);
+    strncpy(password->username, decryptedUsername, usernameLength);
+    strncpy(password->password, decryptedPassword, passwordLength);
 
     printf("Logindetails for %s got decrypted.\n", password->description);
 }
@@ -118,8 +144,8 @@ void encryptPassword(Password *password, const char *key)
     int usernameLength = strlen(password->username);
     int passwordLength = strlen(password->password);
 
-    char encryptedUsername[50];
-    char encryptedPassword[50];
+    char encryptedUsername[MAX_LENGTH];
+    char encryptedPassword[MAX_LENGTH];
 
     for (int i = 0; i < usernameLength; i++)
     {
@@ -139,6 +165,5 @@ void encryptPassword(Password *password, const char *key)
 
     strncpy(password->username, encryptedUsername, usernameLength);
     strncpy(password->password, encryptedPassword, passwordLength);
-
     printf("Logindetails for %s got encrypted.\n", password->description);
 }

@@ -75,7 +75,7 @@ void printPasswordList()
     {
         char desc[50], user[50], pas[50];
 
-        if (sscanf(line, "%[^:]:%[^:]:%s", desc, user, pas) == 3)
+        if (sscanf(line, "%[^:]:%[^:]:%[^\n]", desc, user, pas) == 3)
         {
             strncpy(passwordArray[numPasswords].description, desc, sizeof(desc));
             strncpy(passwordArray[numPasswords].username, user, sizeof(user));
